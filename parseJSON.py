@@ -71,18 +71,48 @@ def parseUserData():
     f.close()
 
 def parseCheckinData():
-    #write code to parse yelp_checkin.JSON
-    pass
+    #read the JSON file
+    with open('./yelp_CptS451_2020/yelp_checkin.JSON', 'r') as f:
+        outfile = open('./checkin.txt', 'w')
+        line = f.readline()
+        count_line = 0
+        #read each JSON object and extract data
+        while line:
+            data = json.loads(line)
+            outfile.write(cleanStr4SQL(data['business_id'])+'\t') #business id
 
+            checkin = data['date'].split(',')
+            outfile.write(str(checkin))
+
+            outfile.write('\n')
+            line = f.readline()
+            count_line += 1
+    outfile.close()
+    f.close()
 
 def parseTipData():
-    #write code to parse yelp_tip.JSON
-    pass
+    #read the JSON file
+    with open('./yelp_CptS451_2020/yelp_tip.JSON', 'r') as f:
+        outfile = open('./tip.txt', 'w')
+        line = f.readline()
+        count_line = 0
+        #read each JSON object and extract data
+        while line:
+            data = json.loads(line)
+            outfile.write(cleanStr4SQL(data['business_id'])+'\t') #business id
+            outfile.write(cleanStr4SQL(data['user_id'])+'\t') #user id
+            outfile.write(cleanStr4SQL(data['date'])+'\t') #date
+            outfile.write(str(data['likes'])+'\t') #likes
+            outfile.write(str(data['text'])) #user id
+
+            outfile.write('\n')
+            line = f.readline()
+            count_line += 1
+    outfile.close()
+    f.close()
 
 def parseRecursive(passedDic):
-    # print("entered parseRecursive")
-    # print(passedDic)
-    # code to recursively parse nested json objects
+    # code to recursively parse nested json objects into list
 
     keys = passedDic.keys()
     result = []

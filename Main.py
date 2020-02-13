@@ -1,14 +1,15 @@
 import wx
 import wx.grid as gridlib
 from BusinessDetailsPopup import BusinessDetailsPopup
+import json
 
 
 class MainFrame(wx.Frame):
     def __init__(self, parent, id, title):
         wx.Frame.__init__(self, parent, id, title, wx.DefaultPosition, wx.Size(500, 500))
 
-        state_choices=["these", "are", "some", "choices"]  ####
-        city_choices=["hello", "world", "hello", "world"]  ####
+        state_choices= getStates()
+        city_choices= getCities()
 
         select_location_sizer = wx.GridBagSizer(0, 0)
         select_location_panel = wx.Panel(self)
@@ -72,6 +73,42 @@ class YelpApp(wx.App):
         frame = MainFrame(None, -1, 'Yelp App')
         frame.Show(True)
         return True
+
+#### extract cities from yelp_business.JSON
+def getCities():
+    with open('./yelp_CptS451_2020/yelp_business.JSON','r') as f:  #Assumes that the data files are available in the current directory. If not, you should set the path for the yelp data files.
+        line = f.readline()
+        count_line = 0
+        result = []
+        #read each JSON abject and extract data
+        while line:
+            data = json.loads(line)
+            city = data['city'] #city
+
+            if city not in result:
+                result.append(city)
+            line = f.readline()
+
+    f.close()
+    return result
+
+#### extract states from yelp_business.JSON
+def getStates():
+    with open('./yelp_CptS451_2020/yelp_business.JSON','r') as f:  #Assumes that the data files are available in the current directory. If not, you should set the path for the yelp data files.
+        line = f.readline()
+        count_line = 0
+        result = []
+        #read each JSON abject and extract data
+        while line:
+            data = json.loads(line)
+            city = data['state'] #state
+
+            if city not in result:
+                result.append(city)
+            line = f.readline()
+
+    f.close()
+    return result
 
 
 app = YelpApp(0)

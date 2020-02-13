@@ -35,7 +35,7 @@ class MainFrame(wx.Frame):
         grid_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.grid_results = gridlib.Grid(grid_panel)
-        self.grid_results.Bind(gridlib.EVT_GRID_CELL_LEFT_CLICK, self.open_more_info)
+        self.grid_results.Bind(gridlib.EVT_GRID_SELECT_CELL, self.open_more_info)
         grid_sizer.Add(self.grid_results, -1, wx.ALL, 20)
 
         grid_panel.SetSizerAndFit(grid_sizer)
@@ -49,13 +49,17 @@ class MainFrame(wx.Frame):
 
         self.business_details = None
 
-    #### on grid cell selection open new window with more info on specified business
-    def open_more_info(self, e):
-        print("Event triggered")
+        #### on grid cell selection open new window with more info on specified business
+    def open_more_info(self, event):
         if self.business_details is not None:
             self.business_details.Destroy()
+
+        row = event.GetRow()
+        name = self.grid_results.GetCellValue(row, 0)
+        state = self.grid_results.GetCellValue(row, 1)
+        city = self.grid_results.GetCellValue(row, 2)
         # Query info and create popup (below is an example
-        self.business_details = BusinessDetailsPopup(self, name="McDonalds", state="WA", city="Pullman",
+        self.business_details = BusinessDetailsPopup(self, name=name, state=state, city=city,
                                                 no_businesse_state="36", no_businesses_city="2")
         self.business_details.Show()
 

@@ -57,13 +57,15 @@ class MainFrame(wx.Frame):
         grid_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.grid_results = gridlib.Grid(grid_panel)
-        self.grid_results.CreateGrid(numRows=0, numCols=3)  # replace row, col with number of results
+        self.grid_results.CreateGrid(numRows=0, numCols=4)  # replace row, col with number of results
         self.grid_results.SetColSize(0, 250)
         self.grid_results.SetColLabelValue(0, "Name")
         self.grid_results.SetColSize(1, 50)
         self.grid_results.SetColLabelValue(1, "State")
         self.grid_results.SetColSize(2, 100)
         self.grid_results.SetColLabelValue(2, "City")
+        self.grid_results.SetColLabelValue(3, "ID")
+        self.grid_results.HideCol(3)
         self.grid_results.Bind(gridlib.EVT_GRID_SELECT_CELL, self.open_more_info)
         grid_sizer.Add(self.grid_results, -1, wx.ALL, 20)
 
@@ -80,16 +82,29 @@ class MainFrame(wx.Frame):
 
         #### on grid cell selection open new window with more info on specified business
     def open_more_info(self, event):
-        if self.business_details is not None:
-            self.business_details.Destroy()
+        if not event.GetRow():
+            print("exiting")
+            return
 
         row = event.GetRow()
         name = self.grid_results.GetCellValue(row, 0)
         state = self.grid_results.GetCellValue(row, 1)
         city = self.grid_results.GetCellValue(row, 2)
-        # Query info and create popup (below is an example
+        ID = self.grid_results.GetCellValue(row, 3)
+
+
+        self.cur.execute(
+            "SELECT COUNT(*) FROM Businesses WHERE State = (SELECT State FROM Businesses WHERE ID = \'" + ID + "\')")
+        num_state = str(self.cur.fetchall()[0][0])
+         viug
+
+        
+        self.cur.execute(
+            "SELECT COUNT(*) FROM Businesses WHERE City = (SELECT City FROM Businesses WHERE ID = \'" + ID + "\')")
+        num_city = str(self.cur.fetchall()[0][0])
+
         self.business_details = BusinessDetailsPopup(self, name=name, state=state, city=city,
-                                                no_businesse_state="36", no_businesses_city="2")
+                                                no_businesse_state=num_state, no_businesses_city=num_city)
         self.business_details.Show()
 
     #### on new state or city selection, update grid
@@ -105,16 +120,25 @@ class MainFrame(wx.Frame):
 
         self.cur.execute("SELECT Name FROM Businesses WHERE City= \'" + city + "\' AND State= \'" + state + "\' ORDER BY Name")
         names = list()
+
         for tup in self.cur.fetchall():
             names.append(str(tup[0]))
 
         if len(names) > self.grid_results.NumberRows:
             self.grid_results.AppendRows(len(names) - self.grid_results.NumberRows)
 
+        self.cur.execute(
+            "SELECT ID FROM Businesses WHERE City= \'" + city + "\' AND State= \'" + state + "\' ORDER BY Name")
+        IDs = list()
+
+        for tup in self.cur.fetchall():
+            IDs.append(str(tup[0]))
+
         for row_idx in range(0, len(names)):
             self.grid_results.SetCellValue(row_idx, 0, names[row_idx])
             self.grid_results.SetCellValue(row_idx, 1, state)
             self.grid_results.SetCellValue(row_idx, 2, city)
+            self.grid_results.SetCellValue(row_idx, 3, IDs[row_idx])
 
         self.Layout()
         self.Update()
